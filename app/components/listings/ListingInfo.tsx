@@ -17,6 +17,7 @@ interface ListingInfoProps {
   user: SafeUser;
   description: string;
   itemCount: number;
+  securityDeposit: number;
   category:
     | {
         icon: IconType;
@@ -31,6 +32,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
   user,
   description,
   itemCount,
+  securityDeposit,
   category,
   locationValue,
 }) => {
@@ -65,6 +67,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
           "
         >
           <div>{itemCount} units</div>
+          <div>Security Deposit: {securityDeposit}</div>
         </div>
       </div>
       <hr />

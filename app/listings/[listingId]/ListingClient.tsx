@@ -39,19 +39,29 @@ const ListingClient: React.FC<ListingClientProps> = ({
   const router = useRouter();
 
   const disabledDates = useMemo(() => {
-    let dates: Date[] = [];
+    const dateCount: Record<string, number> = {};
 
     reservations.forEach((reservation: any) => {
+      const start = reservation.startDate ? new Date(reservation.startDate) : new Date();
+      const end = reservation.endDate ? new Date(reservation.endDate) : new Date();
+
       const range = eachDayOfInterval({
-        start: new Date(reservation.startDate),
-        end: new Date(reservation.endDate),
+        start,
+        end,
       });
 
-      dates = [...dates, ...range];
+      range.forEach((date) => {
+        const dateString = date.toISOString().split("T")[0]; // Format date to YYYY-MM-DD
+        dateCount[dateString] = (dateCount[dateString] || 0) + 1;
+      });
     });
 
+    const dates: Date[] = Object.entries(dateCount)
+      .filter(([_, count]) => count >= listing.itemCount) // Disable dates only if all items are booked
+      .map(([date]) => new Date(date));
+
     return dates;
-  }, [reservations]);
+  }, [reservations, listing.itemCount]);
 
   const category = useMemo(() => {
     return categories.find((items) => items.label === listing.category);
@@ -65,13 +75,47 @@ const ListingClient: React.FC<ListingClientProps> = ({
     if (!currentUser) {
       return loginModal.onOpen();
     }
+
+    // Check availability
+    const start = dateRange.startDate || new Date();
+    const end = dateRange.endDate || new Date();
+
+    const range = eachDayOfInterval({ start, end });
+
+    const isAvailable = range.every((date) => {
+      const dateString = date.toISOString().split("T")[0];
+      const reservedCount = reservations.reduce((count, reservation) => {
+        const reservationStart = reservation.startDate ? new Date(reservation.startDate) : new Date();
+        const reservationEnd = reservation.endDate ? new Date(reservation.endDate) : new Date();
+
+        const reservationRange = eachDayOfInterval({
+          start: reservationStart,
+          end: reservationEnd,
+        });
+
+        return reservationRange.some(
+          (reservedDate) =>
+            reservedDate.toISOString().split("T")[0] === dateString
+        )
+          ? count + 1
+          : count;
+      }, 0);
+
+      return reservedCount < listing.itemCount;
+    });
+
+    if (!isAvailable) {
+      toast.error("Selected dates are unavailable for the requested quantity.");
+      return;
+    }
+
     setIsLoading(true);
 
     axios
       .post("/api/reservations", {
         totalPrice,
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
+        startDate: start,
+        endDate: end,
         listingId: listing?.id,
       })
       .then(() => {
@@ -85,7 +129,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
       .finally(() => {
         setIsLoading(false);
       });
-  }, [totalPrice, dateRange, listing?.id, router, currentUser, loginModal]);
+  }, [totalPrice, dateRange, listing?.id, reservations, listing.itemCount, router, currentUser, loginModal]);
 
   useEffect(() => {
     if (dateRange.startDate && dateRange.endDate) {
@@ -127,6 +171,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               category={category}
               description={listing.description}
               itemCount={listing.itemCount}
+              securityDeposit={listing.securityDeposit}
               locationValue={listing.locationValue}
             />
             <div

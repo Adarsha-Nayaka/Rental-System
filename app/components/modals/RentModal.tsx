@@ -25,6 +25,7 @@ enum STEPS {
   IMAGES = 3,
   DESCRIPTION = 4,
   PRICE = 5,
+  SECURITY = 6, // New step for security deposit
 }
 
 const RentModal = () => {
@@ -48,6 +49,7 @@ const RentModal = () => {
       itemCount: 1,
       imageSrc: "",
       price: 1,
+      securityDeposit: 0, // Default value for security deposit
       title: "",
       description: "",
     },
@@ -83,7 +85,7 @@ const RentModal = () => {
   };
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    if (step !== STEPS.PRICE) {
+    if (step !== STEPS.SECURITY) {
       return onNext();
     }
 
@@ -107,7 +109,7 @@ const RentModal = () => {
   };
 
   const actionLabel = useMemo(() => {
-    if (step === STEPS.PRICE) {
+    if (step === STEPS.SECURITY) {
       return "Create";
     }
 
@@ -250,6 +252,27 @@ const RentModal = () => {
         <Input
           id="price"
           label="Price"
+          formatPrice
+          type="number"
+          disabled={isLoading}
+          register={register}
+          errors={errors}
+          required
+        />
+      </div>
+    );
+  }
+
+  if (step === STEPS.SECURITY) {
+    bodyContent = (
+      <div className="flex flex-col gap-8">
+        <Heading
+          title="Add a security deposit"
+          subtitle="Set an amount refundable at the end of the rental."
+        />
+        <Input
+          id="securityDeposit"
+          label="Security Deposit"
           formatPrice
           type="number"
           disabled={isLoading}

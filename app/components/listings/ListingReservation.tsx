@@ -26,6 +26,20 @@ const ListingReservation: React.FC<
   disabled,
   disabledDates
 }) => {
+
+  const handleFirstFunction = () => {
+    // Logic for the first function
+    console.log("First function called");
+    return true; // Return true or false based on your condition
+  };
+  
+  const handleClick = () => {
+    if (handleFirstFunction()) {
+      onSubmit();
+    }
+  };
+
+  
   return ( 
     <div 
       className="
@@ -57,7 +71,7 @@ const ListingReservation: React.FC<
         <Button 
           disabled={disabled} 
           label="Book" 
-          onClick={onSubmit}
+          onClick={handleClick}
         />
       </div>
       <hr />

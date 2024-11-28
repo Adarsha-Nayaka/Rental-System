@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 
@@ -19,14 +18,17 @@ export async function POST(request: Request) {
     itemCount,
     location,
     price,
+    securityDeposit, // Extract the security deposit from the request body
   } = body;
 
+  // Check if any required fields are missing
   Object.keys(body).forEach((value: any) => {
     if (!body[value]) {
       NextResponse.error();
     }
   });
 
+  // Create a new listing with the securityDeposit included
   const listing = await prisma.listing.create({
     data: {
       title,
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
       itemCount,
       locationValue: location.value,
       price: parseInt(price, 10),
+      securityDeposit: parseInt(securityDeposit), // Store the security deposit
       userId: currentUser.id,
     },
   });

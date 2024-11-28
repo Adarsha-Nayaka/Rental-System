@@ -46,16 +46,17 @@ model Account {
 }
 
 model Listing {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String
-  imageSrc      String
-  createdAt     DateTime @default(now())
-  category      String
-  itemCount     Int
-  locationValue String
-  userId        String   @db.ObjectId
-  price         Int
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String
+  imageSrc        String
+  createdAt       DateTime @default(now())
+  category        String
+  itemCount       Int
+  locationValue   String
+  userId          String   @db.ObjectId
+  price           Int
+  securityDeposit Int     // Added field for security deposit
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
