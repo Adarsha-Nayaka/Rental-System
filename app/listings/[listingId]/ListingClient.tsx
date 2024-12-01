@@ -190,6 +190,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 onSubmit={onCreateReservation}
                 disabled={isLoading}
                 disabledDates={disabledDates}
+                securityDeposit={listing.securityDeposit}
               />
             </div>
           </div>
