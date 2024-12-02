@@ -22,6 +22,7 @@
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "leaflet": "^1.9.3",
+    "lodash.debounce": "^4.0.8",
     "next": "^13.2.4",
     "next-auth": "^4.20.1",
     "next-cloudinary": "^4.0.1",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/leaflet": "^1.9.3",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/react-date-range": "^1.4.4",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.21",

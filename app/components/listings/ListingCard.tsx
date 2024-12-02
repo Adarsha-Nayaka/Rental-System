@@ -1,22 +1,17 @@
-"use client";
+'use client';
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo } from "react";
-import { format } from "date-fns";
+import { useMemo } from "react";
 
 import useCountries from "@/app/hooks/useCountries";
-import { SafeListing, SafeReservation, SafeUser } from "@/app/types";
+import { SafeListing, SafeUser } from "@/app/types";
 
 import HeartButton from "../HeartButton";
 import Button from "../Button";
-import ClientOnly from "../ClientOnly";
-import Avatar from "../Avatar";
 
 interface ListingCardProps {
-  data: SafeListing;
-  userData?: SafeUser | null;
-  reservation?: SafeReservation;
+  data: SafeListing; 
   onAction?: (id: string) => void;
   disabled?: boolean;
   actionLabel?: string;
@@ -26,8 +21,6 @@ interface ListingCardProps {
 
 const ListingCard: React.FC<ListingCardProps> = ({
   data,
-  userData,
-  reservation,
   onAction,
   disabled,
   actionLabel,
@@ -37,39 +30,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const router = useRouter();
   const { getByValue } = useCountries();
 
+  // Assuming 'data.locationValue' contains location info to fetch detailed location
   const location = getByValue(data.locationValue);
 
-  const handleCancel = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-
-      if (disabled) {
-        return;
-      }
-
-      onAction?.(actionId);
-    },
-    [disabled, onAction, actionId]
-  );
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (disabled) return;
+    onAction?.(actionId);
+  };
 
   const price = useMemo(() => {
-    if (reservation) {
-      return reservation.totalPrice;
-    }
-
     return data.price;
-  }, [reservation, data.price]);
+  }, [data.price]);
 
-  const reservationDate = useMemo(() => {
-    if (!reservation) {
-      return null;
-    }
-
-    const start = new Date(reservation.startDate);
-    const end = new Date(reservation.endDate);
-
-    return `${format(start, "PP")} - ${format(end, "PP")}`;
-  }, [reservation]);
+  // Format price for better display
+  const formattedPrice = price.toLocaleString('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  });
 
   return (
     <div
@@ -77,66 +55,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
       className="col-span-1 cursor-pointer group"
     >
       <div className="flex flex-col gap-2 w-full">
-        <div
-          className="
-            aspect-square 
-            w-full 
-            relative 
-            overflow-hidden 
-            rounded-xl
-          "
-        >
+        <div className="aspect-square w-full relative overflow-hidden rounded-xl">
           <Image
             fill
-            className="
-              object-cover 
-              h-full 
-              w-full 
-              group-hover:scale-110 
-              transition
-            "
+            className="object-cover h-full w-full group-hover:scale-110 transition"
             src={data.imageSrc}
             alt="Listing"
           />
-          <div
-            className="
-            absolute
-            top-3
-            right-3
-          "
-          >
+          <div className="absolute top-3 right-3">
             <HeartButton listingId={data.id} currentUser={currentUser} />
           </div>
         </div>
+
         <div className="font-semibold text-lg">{data.title}</div>
-        <div className="font-light text-neutral-500">
-          {reservationDate || (
-            <>
-              {location?.region}, {location?.label}
-            </>
-          )}
-        </div>
-        {reservation && (
-          <>
-            <div
-              className="
-            flex 
-            flex-row 
-            items-center
-            gap-2
-            text-neutral-500
-          "
-            >
-              <div>Booked by {userData?.name}</div>
-              <Avatar src={userData?.image} />
-            </div>
-          </>
+
+        {/* Display Location Information */}
+        {location && (
+          <div className="font-light text-neutral-500">
+            {location?.region}, {location?.label}
+          </div>
         )}
 
         <div className="flex flex-row items-center gap-1">
-          <div className="font-semibold">₹ {price}</div>
-          {!reservation && <div className="font-light">day</div>}
+          <div className="font-semibold">{formattedPrice}</div>
+          <div className="font-light">per day</div>
         </div>
+
+        {/* Action button, only shown when actionLabel exists */}
         {onAction && actionLabel && (
           <Button
             disabled={disabled}

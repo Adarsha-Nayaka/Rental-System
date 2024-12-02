@@ -1,6 +1,5 @@
 import { Nunito } from 'next/font/google'
 
-import Navbar from '@/app/components/navbar/Navbar';
 import LoginModal from '@/app/components/modals/LoginModal';
 import RegisterModal from '@/app/components/modals/RegisterModal';
 import SearchModal from '@/app/components/modals/SearchModal';
@@ -12,6 +11,8 @@ import './globals.css'
 import ClientOnly from './components/ClientOnly';
 import getCurrentUser from './actions/getCurrentUser';
 import Footer from '@/app/components/footer/footer';
+
+import SearchWrapper from './components/SearchWrapper'; // Import the new SearchWrapper
 
 export const metadata = {
   title: 'Rent360',
@@ -38,15 +39,13 @@ export default async function RootLayout({
           <RegisterModal />
           <SearchModal />
           <RentModal />
-          <Navbar currentUser={currentUser} />
-          
-          
+          <SearchWrapper currentUser={currentUser} /> {/* Use the SearchWrapper component */}
         </ClientOnly>
-        <div className="pb-20 pt-28">
+        <div className="" style={{ marginBottom:'60px' }}>
           {children}
         </div>
         <Footer />
       </body>
     </html>
-  )
+  );
 }
